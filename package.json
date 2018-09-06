@@ -1,0 +1,39 @@
+{
+  "name": "yodelay",
+  "version": "1.0.2",
+  "description": "Log and alert slack when errors happen in your application.  Simple wrapper for winston and slack.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel --copy-files --out-dir dist src",
+    "release": "babel --copy-files --out-dir dist src && npm publish"
+  },
+  "author": "Logan Fisher (logan.fisher@parkhub.com)",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.22.2",
+    "slack-notify": "^0.1.6",
+    "util": "^0.11.0",
+    "winston": "^3.1.0",
+    "winston-transport": "^4.2.0"
+  },
+  "devDependencies": {
+    "@parkhub/eslint-config-parkhub-base": "^1.2.1",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.0.1",
+    "babel-jest": "^21.2.0",
+    "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-plugin-transform-es2015-parameters": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-strict-mode": "^6.24.1",
+    "documentation": "^5.3.5",
+    "eslint": "^4.10.0",
+    "eslint-plugin-babel": "^4.1.2",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jest": "^21.2.0",
+    "jest": "^21.2.1",
+    "nodemon": "^1.18.4",
+    "prettier-eslint-cli": "^4.4.0"
+  }
+}
