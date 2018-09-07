@@ -1,9 +1,10 @@
 {
   "name": "yodelay",
-  "version": "1.0.2",
-  "description": "Log and alert slack when errors happen in your application.  Simple wrapper for winston and slack.",
+  "version": "1.0.5",
+  "description": "Log and alert slack when errors happen in codebase. A simple wrapper for winston and slack.",
   "main": "dist/index.js",
   "scripts": {
+    "example": "nodemon --exec babel-node example.js",
     "build": "babel --copy-files --out-dir dist src",
     "release": "babel --copy-files --out-dir dist src && npm publish"
   },
@@ -12,6 +13,7 @@
   "dependencies": {
     "moment": "^2.22.2",
     "slack-notify": "^0.1.6",
+    "url-parse": "^1.4.3",
     "util": "^0.11.0",
     "winston": "^3.1.0",
     "winston-transport": "^4.2.0"
