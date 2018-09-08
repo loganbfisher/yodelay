@@ -2,7 +2,7 @@ import Yodelay from "./src/index";
 
 const logger = new Yodelay({
   slackUrl:
-    "https://hooks.slack.com/services/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",
+    "",
   level: "info",
   format: "simple",
   kibanaUrl: "http://localhost:5601/app/kibana",
