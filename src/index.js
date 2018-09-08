@@ -4,6 +4,7 @@ import Url from "url-parse";
 import moment from "moment";
 
 import UncaughtExceptionTransport from "./transports/uncaught_exception";
+import AlertSlack from "./alertSlack";
 
 class Yodelay {
   constructor(params) {
@@ -13,24 +14,28 @@ class Yodelay {
 
     this.setFormat(logger, params.format);
 
-    this.slack = slack(params.slackUrl);
     this.appName = params.appName;
     this.kibanaUrl = params.kibanaUrl;
     this.channel = params.channel;
     this.alertOnError = params.alertOnError || true;
     this.level = params.level || "debug";
+    this.slackUrl = params.slackUrl;
     this.logger = logger;
 
     this.info = this.info;
     this.error = this.error;
     this.debug = this.debug;
 
+    this.slack = new AlertSlack({
+      slackUrl: this.slackUrl,
+      kibanaUrl: this.kibanaUrl,
+      appName: this.appName
+    });
+
     logger.exceptions.handle(
       new UncaughtExceptionTransport({
         logger: this.logger,
         slack: this.slack,
-        kibanaUrl: this.kibanaUrl,
-        buildKibanaUrl: this.buildKibanaUrl,
         channel: this.channel,
         appName: this.appName
       })
@@ -38,30 +43,45 @@ class Yodelay {
   }
 
   debug(msg, data) {
-    this.logger.debug({
+    let logMessage = {
       app: this.appName,
       message: msg,
-      level: "debug",
-      data: data
-    });
+      level: "debug"
+    };
+
+    if (data) {
+      logMessage.data = data;
+    }
+
+    this.logger.debug(logMessage);
   }
 
   info(msg, data) {
-    this.logger.info({
+    let logMessage = {
       app: this.appName,
       message: msg,
-      level: "info",
-      data: data
-    });
+      level: "info"
+    };
+
+    if (data) {
+      logMessage.data = data;
+    }
+
+    this.logger.info(logMessage);
   }
 
   error(err, data) {
-    this.logger.error({
+    const logMessage = {
       app: this.appName,
       message: err,
-      level: "error",
-      data: data
-    });
+      level: "error"
+    };
+
+    if (data) {
+      logMessage.data = data;
+    }
+
+    this.logger.error(logMessage);
 
     if (
       (!process.env.NODE_ENV && this.alertOnError) ||
@@ -69,36 +89,25 @@ class Yodelay {
     ) {
       this.slack.send({
         channel: this.channel,
-        text: `:warning: Error Happened`,
-        fields: {
-          Application: this.appName,
-          "Error Message": err,
-          Data: data,
-          ":chart_with_upwards_trend: Kibana Url": this.buildKibanaUrl(
-            this.kibanaUrl,
-            moment()
-          )
-        }
+        error: err,
+        type: "error",
+        data: data,
+        time: moment()
       });
     }
   }
 
-  buildKibanaUrl(url, time) {
-    const dateFrom = time.subtract(1, "minute").format();
-    const dateTo = time.add(1, "minute").format();
-
-    return `${url}#/discover?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:${dateFrom},mode:absolute,to:${dateTo}))&_a=(columns:!(_source),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,negate:!f,params:(query:${
-      this.appName
-    },type:phrase),type:phrase,value:${
-      this.appName
-    }))),interval:auto,query:(language:lucene,query:'Unhandled%20Rejection'),sort:!('@timestamp',desc))`;
-  }
-
   simpleBaseFormat() {
     const base = winston.format.printf(info => {
-      return `${info.timestamp} [${info.app}] ${info.level}: ${
-        info.message
-      } ${JSON.stringify(info.data)}`;
+      const string = `${moment(info.timestamp).calendar()} [${info.app}] ${
+        info.level
+      }: ${info.message}`;
+
+      if (info.data) {
+        return `${string} ${JSON.stringify(info.data)}`;
+      }
+
+      return string;
     });
 
     return winston.format.combine(winston.format.timestamp(), base);

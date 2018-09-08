@@ -20,7 +20,7 @@ const logger = new Yodelay({
   level: process.env.LOG_LEVEL,
   format: process.env.LOG_FORMAT,
   kibanaUrl: 'http://localhost:5601/app/kibana'
-}).initialize();
+});
 
 logger.info('This is an info log...');
 logger.error('This is an info log...');
