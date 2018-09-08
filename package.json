@@ -1,6 +1,6 @@
 {
   "name": "yodelay",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Log and alert slack when errors happen in codebase. A simple wrapper for winston and slack.",
   "main": "dist/index.js",
   "scripts": {

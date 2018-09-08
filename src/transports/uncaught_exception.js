@@ -6,26 +6,31 @@ class UncaughtExceptionTransport extends Transport {
     super(opts);
 
     this.logger = opts.logger;
+    this.slack = opts.slack;
+    this.kibanaUrl = opts.kibanaUrl;
+    this.buildKibanaUrl = opts.buildKibanaUrl;
+    this.channel = opts.channel;
+    this.appName = opts.appName;
   }
 
   log(info, callback) {
     setImmediate(() => {
       this.logger.log({
-        app: this.logger.appName,
+        app: this.appName,
         message: info.message,
         level: info.level,
         timestamp: info.timestamp
       });
 
       if (process.env.NODE_ENV !== "development") {
-        this.logger.slack.send({
-          channel: this.logger.channel,
-          text: `:fire: Uncaught Exception Happened ${moment().calendar()}`,
+        this.slack.send({
+          channel: this.channel,
+          text: `:fire: Uncaught Exception Happened`,
           fields: {
-            Application: this.logger.appName,
+            Application: this.appName,
             "Error Message": info.message,
-            ":chart_with_upwards_trend: Kibana Url": this.logger.buildKibanaUrl(
-              this.logger.kibanaUrl,
+            ":chart_with_upwards_trend: Kibana Url": this.buildKibanaUrl(
+              this.kibanaUrl,
               moment()
             )
           }

@@ -1,16 +1,21 @@
 import Yodelay from "./src/index";
 
 const logger = new Yodelay({
-  slackUrl: "https://test",
+  slackUrl:
+    "https://hooks.slack.com/services/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",
   level: "info",
-  format: "json",
+  format: "simple",
   kibanaUrl: "http://localhost:5601/app/kibana",
   channel: "#kpi-exceptions",
   appName: "prod-test-service"
-}).initialize();
+});
 
 function farts() {
-  sharts();
+  logger.info("SHARTS", "toot");
+  logger.error("FARTS", "shoot");
+
+  logger.debug("DEBUG", "fart");
+  //sharts();
 }
 
 function sharts() {
