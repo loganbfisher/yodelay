@@ -22,7 +22,7 @@ class AlertSlack {
         Data: JSON.stringify(data),
         ":chart_with_upwards_trend: Kibana Url": this.buildKibanaUrl(
           this.kibanaUrl,
-          time
+          moment(time)
         )
       }
     });

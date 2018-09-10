@@ -6,13 +6,15 @@ class UncaughtExceptionTransport extends Transport {
     super(opts);
 
     this.logger = opts.logger;
-    this.slack = opts.slack;
+    this.slackUrl = opts.slackUrl;
+    this.kibanaUrl = opts.kibanaUrl;
     this.channel = opts.channel;
     this.appName = opts.appName;
+    this.childProcess = opts.childProcess;
   }
 
   log(info) {
-    setImmediate(() => {
+    setImmediate(async () => {
       this.logger.log({
         app: this.appName,
         message: info.message,
@@ -21,12 +23,17 @@ class UncaughtExceptionTransport extends Transport {
       });
 
       if (process.env.NODE_ENV !== "development") {
-        this.slack.send({
+        this.childProcess.send({
           channel: this.channel,
           error: info.message,
           type: "uncaught_exception",
-          data: data,
-          time: info.timestamp
+          data: "",
+          time: moment(info.timestamp),
+          ...{
+            slackUrl: this.slackUrl,
+            kibanaUrl: this.kibanaUrl,
+            appName: this.appName
+          }
         });
       }
     });

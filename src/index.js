@@ -2,6 +2,7 @@ import winston from "winston";
 import slack from "slack-notify";
 import Url from "url-parse";
 import moment from "moment";
+import { fork } from "child_process";
 
 import UncaughtExceptionTransport from "./transports/uncaught_exception";
 import AlertSlack from "./alertSlack";
@@ -32,12 +33,20 @@ class Yodelay {
       appName: this.appName
     });
 
+    this.childProcess = fork(
+      process.env.LOCAL_DEV === "true"
+        ? "src/childProcess.js"
+        : "node_modules/yodelay/dist/childProcess.js"
+    );
+
     logger.exceptions.handle(
       new UncaughtExceptionTransport({
         logger: this.logger,
-        slack: this.slack,
+        slackUrl: this.slackUrl,
+        kibanaUrl: this.kibanaUrl,
         channel: this.channel,
-        appName: this.appName
+        appName: this.appName,
+        childProcess: this.childProcess
       })
     );
   }
@@ -87,12 +96,16 @@ class Yodelay {
       (!process.env.NODE_ENV && this.alertOnError) ||
       (process.env.NODE_ENV !== "development" && this.alertOnError)
     ) {
-      this.slack.send({
+      this.childProcess.send({
         channel: this.channel,
         error: err,
         type: "error",
         data: data,
-        time: moment()
+        ...{
+          slackUrl: this.slackUrl,
+          kibanaUrl: this.kibanaUrl,
+          appName: this.appName
+        }
       });
     }
   }

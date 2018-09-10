@@ -1,10 +1,10 @@
 {
   "name": "yodelay",
-  "version": "1.0.10",
+  "version": "1.1.1",
   "description": "Log and alert slack when errors happen in codebase. A simple wrapper for winston and slack.",
   "main": "dist/index.js",
   "scripts": {
-    "example": "nodemon --exec babel-node example.js",
+    "example": "LOCAL_DEV=true nodemon --exec babel-node example.js",
     "build": "babel --copy-files --out-dir dist src",
     "release": "babel --copy-files --out-dir dist src && npm publish"
   },
