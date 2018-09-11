@@ -1,10 +1,10 @@
 {
   "name": "yodelay",
-  "version": "1.1.1",
-  "description": "Log and alert slack when errors happen in codebase. A simple wrapper for winston and slack.",
+  "version": "2.0.0",
+  "description": "Log and send error metrics off with ease.",
   "main": "dist/index.js",
   "scripts": {
-    "example": "LOCAL_DEV=true nodemon --exec babel-node example.js",
+    "example": "nodemon --exec babel-node example.js",
     "build": "babel --copy-files --out-dir dist src",
     "release": "babel --copy-files --out-dir dist src && npm publish"
   },
@@ -12,12 +12,27 @@
   "license": "ISC",
   "dependencies": {
     "moment": "^2.22.2",
-    "slack-notify": "^0.1.6",
-    "url-parse": "^1.4.3",
+    "request-promise-native": "^1.0.5",
+    "unhandled-error": "^1.0.0",
     "util": "^0.11.0",
     "winston": "^3.1.0",
     "winston-transport": "^4.2.0"
   },
+  "keywords": [
+    "kubernetes",
+    "microservice",
+    "logging",
+    "log",
+    "grafana",
+    "prometheus",
+    "logger",
+    "metrics",
+    "uncaught",
+    "json",
+    "exceptions",
+    "alerts",
+    "alerter"
+  ],
   "devDependencies": {
     "@parkhub/eslint-config-parkhub-base": "^1.2.1",
     "babel-cli": "^6.26.0",

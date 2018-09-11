@@ -1,54 +1,37 @@
 import winston from "winston";
-import slack from "slack-notify";
-import Url from "url-parse";
 import moment from "moment";
-import { fork } from "child_process";
 
-import UncaughtExceptionTransport from "./transports/uncaught_exception";
-import AlertSlack from "./alertSlack";
+import UnhandledRejectionTransport from "./transports/unhandledRejection";
+
+import FormatLogger from "./format";
+import Metric from "./metric.js";
 
 class Yodelay {
   constructor(params) {
     const logger = winston.createLogger({
-      level: params.level
+      level: params.level,
+      exitOnError: false
     });
 
-    this.setFormat(logger, params.format);
+    new FormatLogger({ logger, ...{ format: params.format } }).setFormat();
 
     this.appName = params.appName;
-    this.kibanaUrl = params.kibanaUrl;
-    this.channel = params.channel;
     this.alertOnError = params.alertOnError || true;
     this.level = params.level || "debug";
-    this.slackUrl = params.slackUrl;
+    this.metricsEndpoint = params.metricsEndpoint;
     this.logger = logger;
+
+    this.metric = new Metric({ apiUrl: this.apiUrl, appName: this.appName });
 
     this.info = this.info;
     this.error = this.error;
     this.debug = this.debug;
 
-    this.slack = new AlertSlack({
-      slackUrl: this.slackUrl,
-      kibanaUrl: this.kibanaUrl,
-      appName: this.appName
-    });
-
-    this.childProcess = fork(
-      process.env.LOCAL_DEV === "true"
-        ? "src/childProcess.js"
-        : "node_modules/yodelay/dist/childProcess.js"
-    );
-
-    logger.exceptions.handle(
-      new UncaughtExceptionTransport({
-        logger: this.logger,
-        slackUrl: this.slackUrl,
-        kibanaUrl: this.kibanaUrl,
-        channel: this.channel,
-        appName: this.appName,
-        childProcess: this.childProcess
-      })
-    );
+    new UnhandledRejectionTransport({
+      logger: this.logger,
+      appName: this.appName,
+      metric: this.metric
+    }).initialize();
   }
 
   debug(msg, data) {
@@ -91,79 +74,7 @@ class Yodelay {
     }
 
     this.logger.error(logMessage);
-
-    if (
-      (!process.env.NODE_ENV && this.alertOnError) ||
-      (process.env.NODE_ENV !== "development" && this.alertOnError)
-    ) {
-      this.childProcess.send({
-        channel: this.channel,
-        error: err,
-        type: "error",
-        data: data,
-        ...{
-          slackUrl: this.slackUrl,
-          kibanaUrl: this.kibanaUrl,
-          appName: this.appName
-        }
-      });
-    }
-  }
-
-  simpleBaseFormat() {
-    const base = winston.format.printf(info => {
-      const string = `${moment(info.timestamp).calendar()} [${info.app}] ${
-        info.level
-      }: ${info.message}`;
-
-      if (info.data) {
-        return `${string} ${JSON.stringify(info.data)}`;
-      }
-
-      return string;
-    });
-
-    return winston.format.combine(winston.format.timestamp(), base);
-  }
-
-  setFormat(logger, format) {
-    const simpleBase = this.simpleBaseFormat();
-
-    switch (format) {
-      case "json":
-        logger.add(
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.timestamp(),
-              winston.format.json()
-            )
-          })
-        );
-
-        break;
-      case "simple":
-        logger.add(
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.colorize(),
-              winston.format.simple(),
-              simpleBase
-            )
-          })
-        );
-
-        break;
-      default:
-        logger.add(
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.colorize(),
-              winston.format.simple(),
-              simpleBase
-            )
-          })
-        );
-    }
+    this.metric.send(logMessage, "error");
   }
 }
 
