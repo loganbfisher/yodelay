@@ -9,21 +9,19 @@ class UnhandledRejectionTransport {
   }
 
   initialize() {
-    unhandledError((error, context) => {
-      const errorType = context.hasOwnProperty("promise")
-        ? "unhandled_promise_rejection"
-        : "error";
+    unhandledError(
+      (error, context) => {
+        const errorType = context.hasOwnProperty("promise")
+          ? "unhandled_promise_rejection"
+          : "unhandled_error";
 
-      const message = {
-        app: this.appName,
-        message: error.message,
-        level: "error",
-        timestamp: moment().format()
-      };
+        const loggerMessage = this.logger.logMessageFormat(error.message);
 
-      this.logger.log(message);
-      this.metric.send(message, errorType);
-    });
+        this.logger.log({ ...loggerMessage, ...{ level: "error" } });
+        this.metric.send(loggerMessage, errorType);
+      },
+      { doNotCrash: true }
+    );
   }
 }
 

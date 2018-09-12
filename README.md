@@ -6,7 +6,13 @@ Out of the box it is set to format your logs with either `simple` or `json` form
 
 ### Metrics Message Format
 
-`{ metricAppName: 'test-app', errorType: 'uncaught_exception', message: 'Something bad happened on line...' }`
+```
+{
+  metricAppName: 'test-app',
+  errorType: 'uncaught_exception',
+  message: 'Something bad happened on line...'
+}
+```
 
 ### Example
 
@@ -14,10 +20,10 @@ Out of the box it is set to format your logs with either `simple` or `json` form
 import Yodelay from "yodelay";
 
 const logger = new Yodelay({
-metricsEndpoint: 'https://example.example.com/metrics',
-appName: "prod-example-api",
-level: process.env.LOG_LEVEL,
-format: process.env.LOG_FORMAT
+  metricsEndpoint: 'https://example.example.com/metrics',
+  appName: "prod-example-api",
+  level: process.env.LOG_LEVEL,
+  format: process.env.LOG_FORMAT
 });
 
 logger.info('This is an info log...');
