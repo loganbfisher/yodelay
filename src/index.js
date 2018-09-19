@@ -11,8 +11,9 @@ class Yodelay {
     this.appName = params.appName;
     this.alertOnError = params.alertOnError || true;
     this.level = params.level || "debug";
-    this.metricsEndpoint = params.metricsEndpoint;
-    this.format = params.format;
+    this.metricsEndpoint = params.metricsEndpoint || null;
+    this.format = params.format || "json";
+    this.debugContext = params.debugContext || null;
 
     this.info = this.info;
     this.error = this.error;
@@ -31,6 +32,7 @@ class Yodelay {
     });
 
     new FormatLogger({
+      debugContext: this.debugContext,
       logger: this.logger,
       ...{ format: this.format, appName: this.appName }
     }).setFormat();
@@ -42,23 +44,38 @@ class Yodelay {
     }).initialize();
   }
 
-  debug(message, data) {
-    const logMessage = this.logger.logMessageFormat(message, data);
+  debug(message, data, context) {
+    const logMessage = this.logger.logMessageFormat(
+      message || "",
+      data || "",
+      context || ""
+    );
 
     this.logger.debug(logMessage);
   }
 
-  info(message, data) {
-    const logMessage = this.logger.logMessageFormat(message, data);
+  info(message, data, context) {
+    const logMessage = this.logger.logMessageFormat(
+      message || "",
+      data || "",
+      context || ""
+    );
 
     this.logger.info(logMessage);
   }
 
-  error(err, data) {
-    const logMessage = this.logger.logMessageFormat(message, data);
+  error(message, data, context) {
+    const logMessage = this.logger.logMessageFormat(
+      message || "",
+      data || "",
+      context || ""
+    );
 
     this.logger.error(logMessage);
-    this.metric.send(logMessage, "error");
+
+    if (this.metricsEndpoint) {
+      this.metric.send(logMessage, "error");
+    }
   }
 }
 

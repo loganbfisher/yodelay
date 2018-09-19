@@ -1,15 +1,44 @@
 {
   "name": "yodelay",
-  "version": "2.0.8",
+  "version": "2.0.11",
   "description": "Log and send error metrics off with ease.",
   "main": "dist/index.js",
   "scripts": {
     "example": "nodemon --exec babel-node example.js",
     "build": "babel --copy-files --out-dir dist src",
-    "release": "babel --copy-files --out-dir dist src && npm publish"
+    "release": "babel --copy-files --out-dir dist src && npm publish",
+    "test": "nodemon --exec jest --coverage"
   },
   "author": "Logan Fisher (logan.fisher@parkhub.com)",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loganbfisher/yodelay"
+  },
+  "jest": {
+    "verbose": true,
+    "collectCoverage": true,
+    "testEnvironment": "node",
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 85,
+        "lines": 85,
+        "statements": 85
+      }
+    },
+    "testMatch": [
+      "**/__tests__/integration/*.integration.test.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "dist/*"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/",
+      "/fixtures/"
+    ]
+  },
   "dependencies": {
     "moment": "^2.22.2",
     "request-promise-native": "^1.0.5",

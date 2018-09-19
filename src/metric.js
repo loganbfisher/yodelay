@@ -9,6 +9,10 @@ class Metric {
 
   async send(message, errorType) {
     try {
+      if (!this.metricsEndpoint) {
+        return;
+      }
+
       return await request({
         method: "POST",
         uri: this.metricsEndpoint,
