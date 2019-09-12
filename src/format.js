@@ -1,5 +1,4 @@
 import winston from "winston";
-import moment from "moment";
 
 class FormatLogger {
   constructor(params) {
@@ -11,7 +10,7 @@ class FormatLogger {
   }
 
   filterContext() {
-    return winston.format((info, opts) => {
+    return winston.format((info) => {
       if (this.debugContext !== null && info.context !== this.debugContext) {
         return false;
       }
@@ -22,9 +21,9 @@ class FormatLogger {
 
   simpleBaseFormat() {
     const base = winston.format.printf(info => {
-      const string = `${moment(info.timestamp)} [${info.app}] ${
+      const string = `[${info.app}] ${
         info.context ? `[context: ${info.context}]}` : ""
-      } ${info.level}: ${info.message}`;
+        } ${info.level}: ${info.message}`;
 
       if (info.data) {
         return `${string} ${JSON.stringify(info.data)}`;
@@ -33,7 +32,7 @@ class FormatLogger {
       return string;
     });
 
-    return winston.format.combine(winston.format.timestamp(), base);
+    return winston.format.combine(base);
   }
 
   logMessageFormat(message, data, context) {
@@ -54,16 +53,12 @@ class FormatLogger {
   }
 
   setFormat() {
-    const simpleBase = this.simpleBaseFormat();
-    const filterContext = this.filterContext();
-
     switch (this.format) {
       case "json":
         this.logger.add(
           new winston.transports.Console({
             format: winston.format.combine(
               this.filterContext(),
-              winston.format.timestamp(),
               winston.format.json()
             )
           })
@@ -77,7 +72,7 @@ class FormatLogger {
               this.filterContext(),
               winston.format.colorize(),
               winston.format.simple(),
-              simpleBase
+              this.simpleBaseFormat()
             )
           })
         );
