@@ -1,4 +1,5 @@
 import winston from "winston";
+import moment from "moment";
 
 class FormatLogger {
   constructor(params) {
@@ -21,7 +22,7 @@ class FormatLogger {
 
   simpleBaseFormat() {
     const base = winston.format.printf(info => {
-      const string = `[${info.app}] ${
+      const string = `${moment(info.timestamp)} [${info.app}] ${
         info.context ? `[context: ${info.context}]}` : ""
         } ${info.level}: ${info.message}`;
 
@@ -32,7 +33,7 @@ class FormatLogger {
       return string;
     });
 
-    return winston.format.combine(base);
+    return winston.format.combine(winston.format.timestamp(), base);
   }
 
   logMessageFormat(message, data, context) {
@@ -59,6 +60,7 @@ class FormatLogger {
           new winston.transports.Console({
             format: winston.format.combine(
               this.filterContext(),
+              winston.format.timestamp(),
               winston.format.json()
             )
           })

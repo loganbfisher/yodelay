@@ -1,6 +1,6 @@
 {
   "name": "yodelay",
-  "version": "2.0.12",
+  "version": "2.1.13",
   "description": "Log and send error metrics off with ease.",
   "main": "dist/index.js",
   "scripts": {
